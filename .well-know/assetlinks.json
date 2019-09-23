@@ -1,0 +1,25 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.sl.whale",
+    "sha256_cert_fingerprints":
+    ["91:D3:37:81:02:16:04:AA:83:A7:18:A2:B3:A0:4F:A8:DC:06:1D:B8:98:9B:06:06:69:4C:53:4E:A5:0D:85:30"]
+  }
+},
+{
+  "relation": ["delegate_permission/common.get_login_creds"],
+  "target": {
+    "namespace": "web",
+    "site": "https://asbstty.github.io"
+  }
+},
+{
+  "relation": ["delegate_permission/common.get_login_creds"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.sl.whale",
+    "sha256_cert_fingerprints":
+    ["91:D3:37:81:02:16:04:AA:83:A7:18:A2:B3:A0:4F:A8:DC:06:1D:B8:98:9B:06:06:69:4C:53:4E:A5:0D:85:30"]
+  }
+}]
