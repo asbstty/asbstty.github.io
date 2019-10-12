@@ -14,7 +14,7 @@
       const api = 'checkLogin'
       getData(api).then(res => {
         if(res.result) {
-          location.replace('http://127.0.0.1:8080/suc.html')
+          location.replace('https://asbstty.github.io/suc.html')
         }
       })
     })()
@@ -24,14 +24,14 @@
       const api = 'login'
       postData(api, {name: username, password}).then(res => {
         if(res.result) {
-          location.href='http://127.0.0.1:8080/suc.html'
+          location.href='https://asbstty.github.io/suc.html'
         } else {
-          location.href='http://127.0.0.1:8080/fail.html'
+          location.href='https://asbstty.github.io/suc.html'
         }
       })
     }
     function gotoRegist() {
-      location.href="http://127.0.0.1:8080/register.html"
+      location.href="https://asbstty.github.io/register.html"
     }
   </script>
 </html>
