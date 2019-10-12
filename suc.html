@@ -1,0 +1,15 @@
+<html>
+  <body>
+    <p>登录成功</p>
+    <button onclick='logout()'>退出登录</button>
+  </body>
+  <script src="network.js"></script>
+  <script>
+    function logout() {
+      const api = 'logout'
+      getData(api).then(res => {
+        location.replace('http://127.0.0.1:8080/index.html')
+      }) 
+    }
+  </script>
+</html>
