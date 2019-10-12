@@ -1,4 +1,4 @@
-const baseUrl = 'http://120.25.253.91:3000/'
+const baseUrl = 'https://www.howieliu.com'
 function postData(api, data) {
   const url = baseUrl + api
   return new Promise((resolve, reject) => {
