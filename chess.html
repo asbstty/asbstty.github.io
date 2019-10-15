@@ -12,14 +12,55 @@
         align-items: center;
         justify-content: center;
       }
+      .chat-area {
+        width: 300px;
+        height: 600px;
+        padding: 10px;
+        border: solid 1px gray;
+        margin-left: 50px;
+        box-sizing: border-box;
+        position: relative;
+      }
+      .message-area {
+        width: 100%;
+        height: 450px;
+        padding: 10px;
+        box-sizing: border-box;
+        overflow: auto;
+        word-break: break-all;
+      }
+      .send-area {
+        width: 100%;
+        height: 120px;
+        margin-top: 10px; 
+        padding: 10px 10px 30px 10px;
+      }
+      .btn-send {
+        position: absolute;
+        right: 15px;
+        bottom: 15px;
+        padding: 5px 10px;
+      }
     </style>
   </head>
   <body>
     <div class="content">
       <canvas id='myCanvas' width="900" height="600" style="background:gray;"></canvas>
+      <div class="chat-area">
+        <div class="message-area">
+          
+        </div>
+        <textarea class="send-area">
+
+        </textarea>
+        <button id="btnSend" class="btn-send" onclick="sendMsg()">
+          发送
+        </button>
+      </div>
     </div>
   </body>
   <script src="chessboard.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
   <script>
     const cvs = document.getElementById('myCanvas')
     const ctx = cvs.getContext('2d')
@@ -71,7 +112,9 @@
         y = Math.floor(y / sept) * sept + sept * (y % sept >= sept / 2)
         const isMe = count % 2
         drawChess(x, y, isMe)
-        if(chessboard.putChess(x / sept - 1, y / sept - 1, isMe)) {
+        const xIndex = x / sept - 1
+        const yIndex = y / sept - 1
+        if(chessboard.putChess(xIndex, yIndex, isMe)) {
           if(chessboard.isGameOver(x / sept - 1, y / sept - 1)) {
             console.log('gameOver!')
           }
@@ -81,7 +124,6 @@
     })
 
     cvs.addEventListener('mousemove', throttle(handleMouseMove, 300))
-    // cvs.addEventListener('mousemove', handleMouseMove)
 
     function handleMouseMove(e) {
       const {offsetLeft, offsetTop} = cvs
@@ -118,6 +160,17 @@
           fn.apply(this, arguments)
           timeout = null
         }, time);
+      }
+    }
+
+    function sendMsg() {
+      const sendBox = document.querySelector('.send-area')
+      const msgBox = document.querySelector('.message-area')
+      if(sendBox.value.trim()) {
+        const newChatItem = document.createElement('div')
+        newChatItem.innerText = sendBox.value
+        msgBox.appendChild(newChatItem)
+        sendBox.value = ''
       }
     }
   </script>
