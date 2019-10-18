@@ -15,6 +15,7 @@ class Chat {
       newChatItem.className='item-chat chat-other'
     }
     this.msgBox.appendChild(newChatItem)
+    this.msgBox.scrollTop = this.msgBox.scrollHeight
   }
 
   sendMessage(message) {
