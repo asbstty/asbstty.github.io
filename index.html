@@ -1,37 +1,253 @@
 <html>
+  <head>
+    <meta charset='utf-8'>
+    <link rel="stylesheet" href="chess.css">
+  </head>
   <body>
-    <div>name: <input id='username' /></div>
-    <div>password: <input id='pass' /></div>
-    <div>
-      <button onclick="login()">登陆</button>
-      <button onclick="gotoRegist()">注册</button>
+    <div class="content">
+      <canvas id='myCanvas' width="900" height="600" style="background:gray;"></canvas>
+      <div class="chat-area">
+        <div class="message-area">
+          
+        </div>
+        <textarea class="send-area">
+
+        </textarea>
+      </div>
+      <button id='btnReady'></button>
+      <div class="login page">
+        <div class="form">
+          <h3 class="title">取个名</h3>
+          <input class="usernameInput" type="text" maxlength="14" />
+        </div>
+      </div>
     </div>
   </body>
-  <script src="network.js"></script>
+  <script src='chat.js'></script>
+  <script src="draw.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
   <script>
-    //import {postData, getData} from './network.js'
-    (function() {
-      const api = 'checkLogin'
-      getData(api).then(res => {
-        if(res.result) {
-          location.replace('https://asbstty.github.io/suc.html')
+    addEventListener('load', function() {
+      let socket = io('http://120.25.253.91:3000');
+      // let socket = io('http://localhost:3000');
+      let {username, userid} = checkLogin()
+      if(username && userid) {
+        socket.emit('login', {username, userid})
+      } else {
+        username = null
+        userid = null
+        //saveLoginInfo(username, userid)
+      }
+      const $cvs = document.getElementById('myCanvas')
+      const $loginPage = document.getElementsByClassName('login')[0]
+      const $btnReady = document.getElementById('btnReady')
+      const drawer = new Drawer()
+      let chater = null
+      let playHandler = {}
+      let canPlay = false
+      let gameStatus = 0
+      let imInGame = false //我是否参与了这场游戏
+      Object.defineProperty(playHandler, 'canPlay', {
+        set: function(bool) {
+          canPlay = bool
+          if(bool) {
+            $cvs.style.cursor = 'pointer'
+          } else {
+            $cvs.style.cursor = 'not-allowed'
+          }
+        },
+        get: function() {
+          return canPlay
         }
       })
-    })()
-    function login() {
-      const username = document.getElementById('username').value
-      const password = document.getElementById('pass').value
-      const api = 'login'
-      postData(api, {name: username, password}).then(res => {
-        if(res.result) {
-          location.href='https://asbstty.github.io/suc.html'
+      playHandler.canPlay = false
+      Object.defineProperty(playHandler, 'gameStatus', {
+        set: function(status) {
+          gameStatus = status
+          if(status == 0) {    //默认状态
+            $btnReady.style.display = 'block'
+            $btnReady.innerText = '准备'
+          } else if(status == 0.5) {
+            $btnReady.innerText = '取消准备'
+          } else if(status == 1) {  //游戏中
+            $btnReady.style.display = 'none'
+          } else {  //游戏结束
+            $btnReady.style.display = 'none'
+          }
+        },
+        get: function() {
+          return gameStatus
+        }
+      })
+      playHandler.gameStatus = 0
+      drawer.initChessBoard();
+      const {sept, curX, curY, xNum, yNum} = drawer;
+      $btnReady.addEventListener('click', getReady)
+      function getReady() {
+        const {xNum, yNum} = drawer;
+        if(playHandler.gameStatus == 0) {
+          socket.emit("ready", {xNum, yNum, username})
+        } else if(playHandler.gameStatus == 0.5) {
+          socket.emit('cancel ready', username)
+        }
+      }
+
+      function throttle(fn, time) {
+        let canInvoke = true
+        return function() {
+          if(canInvoke) {
+            canInvoke = false
+            fn.apply(this, arguments)
+            setTimeout(() => {
+              canInvoke = true
+            }, time);
+          }
+        }
+      }
+
+      function checkLogin() {
+        const userid = localStorage.getItem('userid')
+        const username = localStorage.getItem('username')
+        return {userid, username}
+      }
+      
+      function saveLoginInfo(username, userid) {
+        localStorage.setItem('username', username)
+        localStorage.setItem('userid', userid)
+      }
+
+      /**处理页面事件**/
+      $cvs.addEventListener('click', function(e) {
+        if(!playHandler.canPlay) {
+          return
+        }
+        playHandler.canPlay = false
+        const {offsetLeft, offsetTop} = $cvs
+        const {pageX, pageY} = e
+        let x = pageX - offsetLeft
+        let y = pageY - offsetTop
+        if(x > sept && x < curX && y > sept && y < curY) {
+          x = Math.floor(x / sept) * sept + sept * (x % sept >= sept / 2)
+          y = Math.floor(y / sept) * sept + sept * (y % sept >= sept / 2)
+          const xIndex = x / sept - 1
+          const yIndex = y / sept - 1
+          socket.emit('put chess', {x: xIndex, y: yIndex, username})
+        } 
+      })
+
+      $cvs.addEventListener('mousemove', throttle(handleMouseMove, 300))
+
+      addEventListener('keydown', function(e) {
+        console.log('keydown>>>>', e)
+        if(e.which === 13) {
+          if(username) {   //聊天消息
+            sendMsg()
+          } else {  //发送登陆消息
+            const username = document.querySelector('.usernameInput').value.trim()
+            if(username) {
+              console.log('username>>>>>>', username)
+              socket.emit('login', {username})
+            }
+          }
+        }
+      })
+
+      function handleMouseMove(e) {
+        if(!playHandler.canPlay) {
+          return 
+        }
+        const {offsetLeft, offsetTop} = $cvs
+        const {pageX, pageY} = e
+        let x = pageX - offsetLeft
+        let y = pageY - offsetTop
+        if(x > sept && x < curX && y > sept && y < curY && Math.abs(x % sept - 10) >= 5 && Math.abs(y % sept - 10) >= 5) {
+          $cvs.style.cursor = 'pointer'
         } else {
-          location.href='https://asbstty.github.io/fail.html'
+          $cvs.style.cursor = 'default'
+        }
+      }
+
+      function sendMsg() {
+        const sendBox = document.querySelector('.send-area')
+        const msgBox = document.querySelector('.message-area')
+        if(sendBox.value.trim() && chater) {
+          const message = sendBox.value
+          socket.emit('new message', {
+            message: message, 
+            username, 
+            userid
+          })
+          sendBox.value = ''
+        }
+      }
+
+      /**接受socket发送的消息**/
+      socket.on('login fail', message => {
+        alert(message)
+      })
+      socket.on('login suc', data => {
+        console.log('loginSuc>>>', data)
+        username = data.username
+        userid = data.userid
+        $loginPage.style.display = 'none';
+        //saveLoginInfo(username, userid)
+        chater = new Chat(userid)
+      })
+      socket.on('new message', content => {
+        console.log('new message', content)
+        const {username, userid, message} = content
+        if(chater) {
+          chater.addMessage(username, userid, message)
         }
       })
-    }
-    function gotoRegist() {
-      location.href="https://asbstty.github.io/register.html"
-    }
+      socket.on('ready suc', data => {  //本人已准备
+        console.log('ready suc>>>>', data)
+        playHandler.gameStatus = 0.5
+      })
+      socket.on('cancel suc', () => {
+        playHandler.gameStatus = 0
+      })
+      socket.on('game start', data => {
+        console.log('game start>>>>', data)
+        drawer.clearChess();
+        const {players, curUser} = data
+        playHandler.gameStatus = 1
+        if(players.indexOf(username) > -1) {    //说明是本人参与的游戏
+          imInGame = true
+          if(curUser == username) {
+            playHandler.canPlay = true
+          } else {
+            playHandler.canPlay = false
+          }
+        }
+      })
+      socket.on('put chess', data => {
+        console.log('put chess>>>', data)
+        const {x, y, color} = data
+        drawer.drawChess(x, y, color)
+        if(userid !== data.userid) {
+          playHandler.canPlay = true
+        }
+      })
+      socket.on('put fail', () => {
+        console.log('put fail>>>')
+        playHandler.canPlay = true
+      })
+      socket.on('game over', data => {
+        console.log('game over>>>')
+        playHandler.gameStatus = 2
+        const {winnerId, winnerName} = data
+        if(imInGame) {
+          if(winnerId == userid) {
+            alert('恭喜获胜！')
+          } else {
+            alert('真是菜啊...')
+          }
+        }
+        imInGame = false
+        playHandler.canPlay = false
+        playHandler.gameStatus = 0
+      })
+    })
   </script>
 </html>

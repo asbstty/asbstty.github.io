@@ -5,15 +5,11 @@ const dirctEnum = {
   NEGTIVE_DIAGONAL: 3      //反对角线: '/'
 }
 class ChessBoard {
-  constructor(x, y, player1, player2) {
-    this.sept = 20;
+  constructor(x, y) {
+    this.sept = 20; 
     this.chess = [];  //棋子二维数组
     this.xNum = x;
-    this.yNum = y;
-    this.players = {
-      [player1]: -1,
-      [player2]: 1
-    }
+    this.yNum = y
     this.initChess()
   }
 
@@ -23,24 +19,24 @@ class ChessBoard {
     })
   }
 
-  putChess(x, y, userid) {
+  putChess(x, y, isMe) {
     if(!this.chess[y][x]) {
-      this.chess[y][x] = this.players[userid]
+      this.chess[y][x] = isMe ? 1 : -1
       return true
     }
     return false
   }
 
   isGameOver(x, y) {
-    return this.judgeHorDirection(x, y) ||
-           this.judgeVerDirection(x, y) ||
+    return this.judgeHorDirection(x, y) || 
+           this.judgeVerDirection(x, y) || 
            this.judgeDiagDirection(x, y) ||
            this.judgeAntiDiagDirection(x, y)
   }
 
   //判断横向方向
   judgeHorDirection(x, y) {
-    let startX = x - 4 >= 0 ? x - 4 : 0
+    let startX = x - 4 >= 0 ? x - 4 : 0 
     let endX = x + 4 <= this.xNum ? x + 4 : this.xNum
     let total = 0
     let totalStep = 0
@@ -155,5 +151,17 @@ class ChessBoard {
         break;
     }
   }
+
+  debounce(fn, time) {
+    let timeout = null
+    return function() {
+      if(timeout) {
+        clearTimeout(timeout)
+      }
+      timeout = setTimeout(() => {
+        fn.apply(this, arguments)
+        timeout = null
+      }, time);
+    }
+  }
 }
-module.exports = ChessBoard

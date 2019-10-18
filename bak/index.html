@@ -1,0 +1,37 @@
+<html>
+  <body>
+    <div>name: <input id='username' /></div>
+    <div>password: <input id='pass' /></div>
+    <div>
+      <button onclick="login()">登陆</button>
+      <button onclick="gotoRegist()">注册</button>
+    </div>
+  </body>
+  <script src="network.js"></script>
+  <script>
+    //import {postData, getData} from './network.js'
+    (function() {
+      const api = 'checkLogin'
+      getData(api).then(res => {
+        if(res.result) {
+          location.replace('https://asbstty.github.io/suc.html')
+        }
+      })
+    })()
+    function login() {
+      const username = document.getElementById('username').value
+      const password = document.getElementById('pass').value
+      const api = 'login'
+      postData(api, {name: username, password}).then(res => {
+        if(res.result) {
+          location.href='https://asbstty.github.io/suc.html'
+        } else {
+          location.href='https://asbstty.github.io/fail.html'
+        }
+      })
+    }
+    function gotoRegist() {
+      location.href="https://asbstty.github.io/register.html"
+    }
+  </script>
+</html>
