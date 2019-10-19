@@ -42,6 +42,20 @@ class Drawer {
     }
   }
 
+  // 根据棋盘数组画棋盘
+  drawChessBoardWithArray(chessArray) {
+    chessArray.forEach((item, yIndex) => {
+      item.forEach((color, xIndex) => {
+        if(color) {
+          const radius = this.chessWidth / 2;
+          const realX = radius + xIndex * this.sept;
+          const realY = radius + yIndex * this.sept;
+          this.drawChess(realX, realY, color)
+        }
+      })
+    })
+  }
+
   //放棋子
   putChess(x, y, color) {
     if(this.hasLastChess) {

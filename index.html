@@ -215,6 +215,10 @@
         console.log('loginSuc>>>', data)
         username = data.username
         userid = data.userid
+        if(data.currentboard) {
+          drawer.drawChessBoardWithArray(data.currentboard)
+          playHandler.gameStatus = 1
+        }
         $loginPage.style.display = 'none';
         //saveLoginInfo(username, userid)
         chater = new Chat(userid)
