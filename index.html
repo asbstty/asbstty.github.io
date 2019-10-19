@@ -250,7 +250,7 @@
       socket.on('put chess', data => {
         console.log('put chess>>>', data)
         const {x, y, color} = data
-        drawer.drawChess(x, y, color)
+        drawer.putChess(x, y, color)
         if(userid !== data.userid) {
           playHandler.canPlay = true
         }

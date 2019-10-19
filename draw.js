@@ -14,6 +14,8 @@ class Drawer {
     this.startY = this.chessWidth / 2;
     this.curX = this.startX;
     this.curY = this.startX;
+    this.hasLastChess = false;
+    this.lastPoint = {lastX: -1, lastY: -1, lastColor:''}
   }
 
   //画棋盘
@@ -40,21 +42,45 @@ class Drawer {
     }
   }
 
-  //画棋子
-  drawChess(x, y, color) {
-    console.log('drawChess>>>>', x, y, color)
+  //放棋子
+  putChess(x, y, color) {
+    if(this.hasLastChess) {
+      const {lastX, lastY, lastColor} = this.lastPoint  //lastX, lastY:实际的坐标，不是数组下标
+      this.chessCtx.clearRect(lastX - width / 2, lastY - this.chessWidth / 2, this.chessWidth, this.chessWidth);
+      this.drawChess(lastX, lastY, lastColor)
+    }
     const radius = this.chessWidth / 2;
     const realX = radius + x * this.sept;
     const realY = radius + y * this.sept;
+    this.drawChess(realX, realY, color, true);
+    this.hasLastChess = true
+    this.lastPoint = {
+      lastX: realX,
+      lastY: realY,
+      lastColor: color
+    }
+    
+  }
+
+  //画棋子
+  drawChess(x, y, color, isNew) {  // 新棋子中间加上红点
+    const radius = this.chessWidth / 2; 
     this.chessCtx.beginPath();
     this.chessCtx.fillStyle = color;
-    this.chessCtx.arc(realX, realY, radius, 0, 2 * Math.PI);
+    this.chessCtx.arc(x, y, radius, 0, 2 * Math.PI);
     this.chessCtx.fill();
+    if(isNaw) {
+      this.chessCtx.beginPath();
+      this.chessCtx.fillStyle = 'red';
+      this.chessCtx.arc(x, y, 5, 0, 2 * Math.PI);
+      this.chessCtx.fill();
+    }
   }
 
   //清空棋子
   clearChess() {
     this.chessCtx.clearRect(0, 0, this.chessCvs.width, this.chessCvs.height)
-    this.initChessBoard()
+    this.hasLastChess = false;
+    this.lastPoint = {lastX: -1, lastY: -1, lastColor:''}
   }
 }
