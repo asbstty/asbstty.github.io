@@ -69,7 +69,7 @@ class Drawer {
     this.chessCtx.fillStyle = color;
     this.chessCtx.arc(x, y, radius, 0, 2 * Math.PI);
     this.chessCtx.fill();
-    if(isNaw) {
+    if(isNew) {
       this.chessCtx.beginPath();
       this.chessCtx.fillStyle = 'red';
       this.chessCtx.arc(x, y, 5, 0, 2 * Math.PI);
