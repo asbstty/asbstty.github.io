@@ -5,7 +5,10 @@
   </head>
   <body>
     <div class="content">
-      <canvas id='myCanvas' width="900" height="600" style="background:#F6BF72"></canvas>
+      <div class="game-area">
+        <canvas id='tableCanvas' width="910" height="600" style="background:#F6BF72"></canvas>
+        <canvas id='chessCanvas' width="910" height="600" style="background:transparent"></canvas>
+      </div>
       <div class="chat-area">
         <div class="message-area">
           
@@ -38,7 +41,7 @@
         userid = null
         //saveLoginInfo(username, userid)
       }
-      const $cvs = document.getElementById('myCanvas')
+      const $cvs = document.getElementById('chessCanvas')
       const $loginPage = document.getElementsByClassName('login')[0]
       const $btnReady = document.getElementById('btnReady')
       const drawer = new Drawer()

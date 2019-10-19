@@ -9,6 +9,21 @@ head,body{
   align-items: center;
   justify-content: center;
 }
+.game-area {
+  width: 910px;
+  height: 600px;
+  position: relative;
+}
+#tableCanvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+#chessCanvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
 .chat-area {
   width: 300px;
   height: 600px;
