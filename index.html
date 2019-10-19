@@ -81,7 +81,6 @@
       })
       playHandler.gameStatus = 0
       drawer.initChessBoard();
-      const {sept, curX, curY, xNum, yNum} = drawer;
       $btnReady.addEventListener('click', getReady)
       function getReady() {
         const {xNum, yNum} = drawer;
@@ -126,11 +125,8 @@
         const {pageX, pageY} = e
         let x = pageX - offsetLeft
         let y = pageY - offsetTop
-        if(x > sept && x < curX && y > sept && y < curY) {
-          x = Math.floor(x / sept) * sept + sept * (x % sept >= sept / 2)
-          y = Math.floor(y / sept) * sept + sept * (y % sept >= sept / 2)
-          const xIndex = x / sept - 1
-          const yIndex = y / sept - 1
+        if(canClick(x, y)) {
+          const {xIndex, yIndex} = getRealPoint(x, y)
           socket.emit('put chess', {x: xIndex, y: yIndex, username})
         } 
       })
@@ -138,14 +134,12 @@
       $cvs.addEventListener('mousemove', throttle(handleMouseMove, 300))
 
       addEventListener('keydown', function(e) {
-        console.log('keydown>>>>', e)
         if(e.which === 13) {
           if(username) {   //聊天消息
             sendMsg()
           } else {  //发送登陆消息
             const username = document.querySelector('.usernameInput').value.trim()
             if(username) {
-              console.log('username>>>>>>', username)
               socket.emit('login', {username})
             }
           }
@@ -160,11 +154,27 @@
         const {pageX, pageY} = e
         let x = pageX - offsetLeft
         let y = pageY - offsetTop
-        if(x > sept && x < curX && y > sept && y < curY && Math.abs(x % sept - 10) >= 5 && Math.abs(y % sept - 10) >= 5) {
+        if(canClick(x, y)) {
           $cvs.style.cursor = 'pointer'
         } else {
           $cvs.style.cursor = 'default'
         }
+      }
+
+      //当前是否点在正确位置
+      function canClick(x, y) {
+        const {xPoint, yPoint} = getRealPoint(x, y)
+        return Math.abs(x - xPoint) <= 10 && Math.abs(y - yPoint) <= 10
+      }
+
+      //获取实际落点坐标
+      function getRealPoint(x, y) {
+        const {sept, xNum, yNum, chessWidth, startX, startY} = drawer;
+        const xIndex = Math.floor((x - startX) / sept) 
+        const yIndex = Math.floor((y - startY) / sept)
+        const xPoint = startX + xIndex * sept   //最近的落子点x坐标
+        const yPoint = startY + yIndex * sept   //最近的落子点y坐标
+        return {xPoint, yPoint, xIndex, yIndex}
       }
 
       function sendMsg() {
