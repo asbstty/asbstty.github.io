@@ -42,7 +42,7 @@ class Drawer {
 
   //画棋子
   drawChess(x, y, color) {
-    console.log('drawChess>>>>', y, y, color)
+    console.log('drawChess>>>>', x, y, color)
     const radius = this.chessWidth / 2;
     const realX = radius + x * this.sept;
     const realY = radius + y * this.sept;

@@ -124,10 +124,7 @@
           return
         }
         playHandler.canPlay = false
-        const {offsetLeft, offsetTop} = $cvs
-        const {pageX, pageY} = e
-        let x = pageX - offsetLeft
-        let y = pageY - offsetTop
+        const {offsetX:x, offsetY: y} = e
         if(canClick(x, y)) {
           const {xIndex, yIndex} = getRealPoint(x, y)
           socket.emit('put chess', {x: xIndex, y: yIndex, username})
@@ -195,7 +192,7 @@
             break;
           }
         }
-        console.log('getRealPoint',xPoint, yPoint, xIndex, yIndex)
+        // console.log('getRealPoint',xPoint, yPoint, xIndex, yIndex, xIsOk && yIsOk)
         return {validPoint: xIsOk && yIsOk, xPoint, yPoint, xIndex, yIndex}
       }
 
