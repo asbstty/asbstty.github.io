@@ -150,10 +150,7 @@
         if(!playHandler.canPlay) {
           return 
         }
-        const {offsetLeft, offsetTop} = $cvs
-        const {pageX, pageY} = e
-        let x = pageX - offsetLeft
-        let y = pageY - offsetTop
+        const {offsetX:x, offsetY: y} = e
         if(canClick(x, y)) {
           $cvs.style.cursor = 'pointer'
         } else {
