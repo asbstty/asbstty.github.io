@@ -163,18 +163,37 @@
 
       //当前是否点在正确位置
       function canClick(x, y) {
-        const {xPoint, yPoint} = getRealPoint(x, y)
-        return Math.abs(x - xPoint) <= 10 && Math.abs(y - yPoint) <= 10
+        const {validPoint} = getRealPoint(x, y)
+        return validPoint
       }
 
       //获取实际落点坐标
       function getRealPoint(x, y) {
         const {sept, xNum, yNum, chessWidth, startX, startY} = drawer;
-        const xIndex = Math.floor((x - startX) / sept) 
-        const yIndex = Math.floor((y - startY) / sept)
-        const xPoint = startX + xIndex * sept   //最近的落子点x坐标
-        const yPoint = startY + yIndex * sept   //最近的落子点y坐标
-        return {xPoint, yPoint, xIndex, yIndex}
+        let xPoint = 0
+        let yPoint = 0
+        let xIndex = 0
+        let yIndex = 0
+        let xIsOk = false
+        let yIsOk = false
+        for(let i = 0; i < xNum; i++) {
+          if(x >= startX - 10 + sept * i && x <= startX + 10 + sept * i) {
+            xIsOk = true;
+            xIndex = i;
+            xPoint = startX + sept * i;
+            break;
+          }
+        }
+        for(let i = 0; i < yNum; i++) {
+          if(y >= startY - 10 + sept * i && y <= startY + 10 + sept * i) {
+            yIsOk = true;
+            yIndex = i;
+            yPoint = startY + sept * i;
+            break;
+          }
+        }
+        console.log('getRealPoint',xPoint, yPoint, xIndex, yIndex)
+        return {validPoint: xIsOk && yIsOk, xPoint, yPoint, xIndex, yIndex}
       }
 
       function sendMsg() {

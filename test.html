@@ -1,0 +1,158 @@
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <link rel="stylesheet" href="chess.css">
+  </head>
+  <body>
+    <div class="content">
+      <canvas id='myCanvas' width="900" height="600" style="background:#F6BF72"></canvas>
+      <div class="chat-area">
+        <div class="message-area">
+          
+        </div>
+        <textarea class="send-area">
+
+        </textarea>
+      </div>
+      <button id='btnReady'></button>
+    </div>
+  </body>
+  <script src='chat.js'></script>
+  <script src="draw.js"></script>
+  <script>
+    addEventListener('load', function() {
+      const $cvs = document.getElementById('myCanvas')
+      const drawer = new Drawer()
+      let chater = null
+      let playHandler = {}
+      let canPlay = false
+      let gameStatus = 0
+      Object.defineProperty(playHandler, 'canPlay', {
+        set: function(bool) {
+          canPlay = bool
+          if(bool) {
+            $cvs.style.cursor = 'pointer'
+          } else {
+            $cvs.style.cursor = 'not-allowed'
+          }
+        },
+        get: function() {
+          return canPlay
+        }
+      })
+      playHandler.canPlay = true
+      Object.defineProperty(playHandler, 'gameStatus', {
+        set: function(status) {
+          gameStatus = status
+          if(status == 0) {    //默认状态
+            $btnReady.style.display = 'block'
+            $btnReady.innerText = '准备'
+          } else if(status == 0.5) {
+            $btnReady.innerText = '取消准备'
+          } else if(status == 1) {  //游戏中
+            $btnReady.style.display = 'none'
+          } else {  //游戏结束
+            $btnReady.style.display = 'none'
+          }
+        },
+        get: function() {
+          return gameStatus
+        }
+      })
+      drawer.initChessBoard();
+
+      function throttle(fn, time) {
+        let canInvoke = true
+        return function() {
+          if(canInvoke) {
+            canInvoke = false
+            fn.apply(this, arguments)
+            setTimeout(() => {
+              canInvoke = true
+            }, time);
+          }
+        }
+      }
+
+      /**处理页面事件**/
+      $cvs.addEventListener('click', function(e) {
+        console.log('ccc>>>', playHandler.canPlay)
+        if(!playHandler.canPlay) {
+          return
+        }
+        const {offsetLeft, offsetTop} = $cvs
+        const {pageX, pageY} = e
+        let x = pageX - offsetLeft
+        let y = pageY - offsetTop
+        if(canClick(x, y)) {
+          console.log('canclick>>>>')
+          const {xIndex, yIndex} = getRealPoint(x, y)
+          drawer.drawChess(xIndex, yIndex, 'white')
+        } 
+      })
+
+      $cvs.addEventListener('mousemove', throttle(handleMouseMove, 300))
+
+      function handleMouseMove(e) {
+        if(!playHandler.canPlay) {
+          return 
+        }
+        const {offsetLeft, offsetTop} = $cvs
+        const {pageX, pageY} = e
+        let x = pageX - offsetLeft
+        let y = pageY - offsetTop
+        if(canClick(x, y)) {
+          $cvs.style.cursor = 'pointer'
+        } else {
+          $cvs.style.cursor = 'default'
+        }
+      }
+
+      //当前是否点在正确位置
+      function canClick(x, y) {
+        const {validPoint} = getRealPoint(x, y)
+        // return Math.abs(x - xPoint) <= 10 && Math.abs(y - yPoint) <= 10
+        return validPoint
+      }
+
+      //获取实际落点坐标
+      function getRealPoint(x, y) {
+        const {sept, xNum, yNum, chessWidth, startX, startY} = drawer;
+        let xPoint = 0
+        let yPoint = 0
+        let xIndex = 0
+        let yIndex = 0
+        let xIsOk = false
+        let yIsOk = false
+        for(let i = 0; i < xNum; i++) {
+          if(x >= startX - 10 + sept * i && x <= startX + 10 + sept * i) {
+            xIsOk = true;
+            xIndex = i;
+            xPoint = startX + sept * i;
+            break;
+          }
+        }
+        for(let i = 0; i < yNum; i++) {
+          if(y >= startY - 10 + sept * i && y <= startY + 10 + sept * i) {
+            yIsOk = true;
+            yIndex = i;
+            yPoint = startY + sept * i;
+            break;
+          }
+        }
+        console.log('getRealPoint',xPoint, yPoint, xIndex, yIndex)
+        return {validPoint: xIsOk && yIsOk, xPoint, yPoint, xIndex, yIndex}
+        // const {sept, xNum, yNum, chessWidth, startX, startY} = drawer;
+        // const xIndex = Math.floor((x - startX) / sept) 
+        // const yIndex = Math.floor((y - startY) / sept)
+        // const xPoint = startX + xIndex * sept   //最近的落子点x坐标
+        // const yPoint = startY + yIndex * sept   //最近的落子点y坐标s
+        // console.log(`xPoint:${xPoint}, yPoint:${yPoint}, xIndex:${xIndex}, yIndex:${yIndex}`)
+        // return {xPoint, yPoint, xIndex, yIndex}
+
+        // 5~25 45~65 85~105
+        // (5 + n * 40) ~ (25 + n * 40)
+      }
+    })
+  </script>
+</html>
