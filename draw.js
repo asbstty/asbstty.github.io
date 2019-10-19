@@ -46,7 +46,7 @@ class Drawer {
   putChess(x, y, color) {
     if(this.hasLastChess) {
       const {lastX, lastY, lastColor} = this.lastPoint  //lastX, lastY:实际的坐标，不是数组下标
-      this.chessCtx.clearRect(lastX - width / 2, lastY - this.chessWidth / 2, this.chessWidth, this.chessWidth);
+      this.chessCtx.clearRect(lastX - this.chessWidth / 2, lastY - this.chessWidth / 2, this.chessWidth, this.chessWidth);
       this.drawChess(lastX, lastY, lastColor)
     }
     const radius = this.chessWidth / 2;
@@ -72,7 +72,7 @@ class Drawer {
     if(isNew) {
       this.chessCtx.beginPath();
       this.chessCtx.fillStyle = 'red';
-      this.chessCtx.arc(x, y, 5, 0, 2 * Math.PI);
+      this.chessCtx.arc(x, y, 2, 0, 2 * Math.PI);
       this.chessCtx.fill();
     }
   }
