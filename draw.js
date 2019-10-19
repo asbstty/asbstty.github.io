@@ -46,7 +46,7 @@ class Drawer {
     const radius = this.chessWidth / 2;
     const realX = radius + x * this.sept;
     const realY = radius + y * this.sept;
-    this.ches.beginPath();
+    this.chessCtx.beginPath();
     this.chessCtx.fillStyle = color;
     this.chessCtx.arc(realX, realY, radius, 0, 2 * Math.PI);
     this.chessCtx.fill();
