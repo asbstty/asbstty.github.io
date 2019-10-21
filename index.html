@@ -39,7 +39,7 @@
       } else {
         username = null
         userid = null
-        //saveLoginInfo(username, userid)
+        saveLoginInfo(username, userid)
       }
       const $cvs = document.getElementById('chessCanvas')
       const $loginPage = document.getElementsByClassName('login')[0]
@@ -213,14 +213,14 @@
       })
       socket.on('login suc', data => {
         console.log('loginSuc>>>', data)
-        username = data.username
-        userid = data.userid
-        if(data.currentboard) {
-          drawer.drawChessBoardWithArray(data.currentboard)
-          playHandler.gameStatus = 1
+        const {username, userid, currentboard, gameStatus, nextPlayer} = data
+        if(currentboard) {
+          drawer.drawChessBoardWithArray(currentboard)
+          playHandler.gameStatus = gameStatus
+          playHandler.canPlay = userid === nextPlayer.userid && gameStatus == 1
         }
         $loginPage.style.display = 'none';
-        //saveLoginInfo(username, userid)
+        saveLoginInfo(username, userid)
         chater = new Chat(userid)
       })
       socket.on('new message', content => {
@@ -253,9 +253,10 @@
       })
       socket.on('put chess', data => {
         console.log('put chess>>>', data)
-        const {x, y, color} = data
+        const {x, y, color, nextPlayer} = data
         drawer.putChess(x, y, color)
-        if(userid !== data.userid) {
+        if(userid === nextPlayer.userid) {
+          imInGame = true
           playHandler.canPlay = true
         }
       })
