@@ -37,9 +37,7 @@
       if(username && userid) {
         socket.emit('login', {username, userid})
       } else {
-        username = null
-        userid = null
-        saveLoginInfo(username, userid)
+        clearLoginInfo()
       }
       const $cvs = document.getElementById('chessCanvas')
       const $loginPage = document.getElementsByClassName('login')[0]
@@ -116,6 +114,11 @@
       function saveLoginInfo(username, userid) {
         localStorage.setItem('username', username)
         localStorage.setItem('userid', userid)
+      }
+
+      function clearLoginInfo() {
+        localStorage.removeItem('username')
+        localStorage.removeItem('userid')
       }
 
       /**处理页面事件**/
