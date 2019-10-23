@@ -1,287 +1,43 @@
 <html>
   <head>
     <meta charset='utf-8'>
-    <link rel="stylesheet" href="chess.css">
+    <style>
+      head,body{
+        width: 100%;
+        height: 100%;
+      }
+      .content {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .game-item {
+        border-radius: 10px;
+        padding: 10px 15px;
+        font-size: 24px;
+        font-weight: 500;
+        background-color: aliceblue;
+        cursor: pointer;
+        margin-bottom: 30px;
+      }
+    </style>
   </head>
   <body>
-    <div class="content">
-      <div class="game-area">
-        <canvas id='tableCanvas' width="910" height="600" style="background:#F6BF72"></canvas>
-        <canvas id='chessCanvas' width="910" height="600" style="background:transparent"></canvas>
-      </div>
-      <div class="chat-area">
-        <div class="message-area">
-          
-        </div>
-        <textarea class="send-area">
-
-        </textarea>
-      </div>
-      <button id='btnReady'></button>
-      <div class="login page">
-        <div class="form">
-          <h3 class="title">取个名</h3>
-          <input class="usernameInput" type="text" maxlength="14" />
-        </div>
-      </div>
+    <div id="content">
+      <div class="game-item" onclick="openGame(0)">沙雕五子棋</div>
+      <div class="game-item" onclick="openGame(1)">沙雕贪吃蛇</div>
     </div>
   </body>
-  <script src='chat.js'></script>
-  <script src="draw.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
   <script>
-    addEventListener('load', function() {
-      let socket = io('http://120.25.253.91:3000');
-      // let socket = io('http://localhost:3000');
-      let {username, userid} = checkLogin()
-      if(username && userid) {
-        socket.emit('login', {username, userid})
-      } else {
-        clearLoginInfo()
+    function openGame(type) {
+      if(type == 0) {
+        location.href='./chess/index.html'
+      } else if(type == 1) {
+        location.href='./snake/index.html'
       }
-      const $cvs = document.getElementById('chessCanvas')
-      const $loginPage = document.getElementsByClassName('login')[0]
-      const $btnReady = document.getElementById('btnReady')
-      const drawer = new Drawer()
-      let chater = null
-      let playHandler = {}
-      let canPlay = false
-      let gameStatus = 0
-      let imInGame = false //我是否参与了这场游戏
-      Object.defineProperty(playHandler, 'canPlay', {
-        set: function(bool) {
-          canPlay = bool
-          if(bool) {
-            $cvs.style.cursor = 'pointer'
-          } else {
-            $cvs.style.cursor = 'not-allowed'
-          }
-        },
-        get: function() {
-          return canPlay
-        }
-      })
-      playHandler.canPlay = false
-      Object.defineProperty(playHandler, 'gameStatus', {
-        set: function(status) {
-          gameStatus = status
-          if(status == 0) {    //默认状态
-            $btnReady.style.display = 'block'
-            $btnReady.innerText = '准备'
-          } else if(status == 0.5) {
-            $btnReady.innerText = '取消准备'
-          } else if(status == 1) {  //游戏中
-            $btnReady.style.display = 'none'
-          } else {  //游戏结束
-            $btnReady.style.display = 'none'
-          }
-        },
-        get: function() {
-          return gameStatus
-        }
-      })
-      playHandler.gameStatus = 0
-      drawer.initChessBoard();
-      $btnReady.addEventListener('click', getReady)
-      function getReady() {
-        const {xNum, yNum} = drawer;
-        if(playHandler.gameStatus == 0) {
-          socket.emit("ready", {xNum, yNum, username})
-        } else if(playHandler.gameStatus == 0.5) {
-          socket.emit('cancel ready', username)
-        }
-      }
-
-      function throttle(fn, time) {
-        let canInvoke = true
-        return function() {
-          if(canInvoke) {
-            canInvoke = false
-            fn.apply(this, arguments)
-            setTimeout(() => {
-              canInvoke = true
-            }, time);
-          }
-        }
-      }
-
-      function checkLogin() {
-        const userid = localStorage.getItem('userid')
-        const username = localStorage.getItem('username')
-        return {userid, username}
-      }
-      
-      function saveLoginInfo(username, userid) {
-        localStorage.setItem('username', username)
-        localStorage.setItem('userid', userid)
-      }
-
-      function clearLoginInfo() {
-        localStorage.removeItem('username')
-        localStorage.removeItem('userid')
-      }
-
-      /**处理页面事件**/
-      $cvs.addEventListener('click', function(e) {
-        if(!playHandler.canPlay) {
-          return
-        }
-        playHandler.canPlay = false
-        const {offsetX:x, offsetY: y} = e
-        if(canClick(x, y)) {
-          const {xIndex, yIndex} = getRealPoint(x, y)
-          socket.emit('put chess', {x: xIndex, y: yIndex, username})
-        } 
-      })
-
-      $cvs.addEventListener('mousemove', throttle(handleMouseMove, 300))
-
-      addEventListener('keydown', function(e) {
-        if(e.which === 13) {
-          if(username) {   //聊天消息
-            sendMsg()
-          } else {  //发送登陆消息
-            const username = document.querySelector('.usernameInput').value.trim()
-            if(username) {
-              socket.emit('login', {username})
-            }
-          }
-        }
-      })
-
-      function handleMouseMove(e) {
-        if(!playHandler.canPlay) {
-          return 
-        }
-        const {offsetX:x, offsetY: y} = e
-        if(canClick(x, y)) {
-          $cvs.style.cursor = 'pointer'
-        } else {
-          $cvs.style.cursor = 'default'
-        }
-      }
-
-      //当前是否点在正确位置
-      function canClick(x, y) {
-        const {validPoint} = getRealPoint(x, y)
-        return validPoint
-      }
-
-      //获取实际落点坐标
-      function getRealPoint(x, y) {
-        const {sept, xNum, yNum, chessWidth, startX, startY} = drawer;
-        let xPoint = 0
-        let yPoint = 0
-        let xIndex = 0
-        let yIndex = 0
-        let xIsOk = false
-        let yIsOk = false
-        for(let i = 0; i < xNum; i++) {
-          if(x >= startX - 10 + sept * i && x <= startX + 10 + sept * i) {
-            xIsOk = true;
-            xIndex = i;
-            xPoint = startX + sept * i;
-            break;
-          }
-        }
-        for(let i = 0; i < yNum; i++) {
-          if(y >= startY - 10 + sept * i && y <= startY + 10 + sept * i) {
-            yIsOk = true;
-            yIndex = i;
-            yPoint = startY + sept * i;
-            break;
-          }
-        }
-        // console.log('getRealPoint',xPoint, yPoint, xIndex, yIndex, xIsOk && yIsOk)
-        return {validPoint: xIsOk && yIsOk, xPoint, yPoint, xIndex, yIndex}
-      }
-
-      function sendMsg() {
-        const sendBox = document.querySelector('.send-area')
-        const msgBox = document.querySelector('.message-area')
-        if(sendBox.value.trim() && chater) {
-          const message = sendBox.value
-          socket.emit('new message', {
-            message: message, 
-            username, 
-            userid
-          })
-          sendBox.value = ''
-        }
-      }
-
-      /**接受socket发送的消息**/
-      socket.on('login fail', message => {
-        alert(message)
-      })
-      socket.on('login suc', data => {
-        console.log('loginSuc>>>', data)
-        const {username, userid, currentboard, gameStatus, nextPlayer} = data
-        if(currentboard) {
-          drawer.drawChessBoardWithArray(currentboard)
-          playHandler.gameStatus = gameStatus
-          playHandler.canPlay = userid === nextPlayer.userid && gameStatus == 1
-        }
-        $loginPage.style.display = 'none';
-        saveLoginInfo(username, userid)
-        chater = new Chat(userid)
-      })
-      socket.on('new message', content => {
-        console.log('new message', content)
-        const {username, userid, message} = content
-        if(chater) {
-          chater.addMessage(username, userid, message)
-        }
-      })
-      socket.on('ready suc', data => {  //本人已准备
-        console.log('ready suc>>>>', data)
-        playHandler.gameStatus = 0.5
-      })
-      socket.on('cancel suc', () => {
-        playHandler.gameStatus = 0
-      })
-      socket.on('game start', data => {
-        console.log('game start>>>>', data)
-        drawer.clearChess();
-        const {players, curUser} = data
-        playHandler.gameStatus = 1
-        if(players.indexOf(username) > -1) {    //说明是本人参与的游戏
-          imInGame = true
-          if(curUser == username) {
-            playHandler.canPlay = true
-          } else {
-            playHandler.canPlay = false
-          }
-        }
-      })
-      socket.on('put chess', data => {
-        console.log('put chess>>>', data)
-        const {x, y, color, nextPlayer} = data
-        drawer.putChess(x, y, color)
-        if(userid === nextPlayer.userid) {
-          imInGame = true
-          playHandler.canPlay = true
-        }
-      })
-      socket.on('put fail', () => {
-        console.log('put fail>>>')
-        playHandler.canPlay = true
-      })
-      socket.on('game over', data => {
-        console.log('game over>>>')
-        playHandler.gameStatus = 2
-        const {winnerId, winnerName} = data
-        if(imInGame) {
-          if(winnerId == userid) {
-            alert('恭喜获胜！')
-          } else {
-            alert('真是菜啊...')
-          }
-        }
-        imInGame = false
-        playHandler.canPlay = false
-        playHandler.gameStatus = 0
-      })
-    })
+    }
   </script>
 </html>
