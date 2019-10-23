@@ -189,7 +189,7 @@ addEventListener('load', () => {
     head = next
     if(head.x == food.x && head.y == food.y) {
       cachePoint = snake[0]
-      game.score += 10
+      gameData.score += 10
       generateFood()
     }
   }
