@@ -44,7 +44,7 @@ head,body{
   width: 120px;
   height: 120px;
   position: relative;
-  display: 'none';
+  display: none;
 }
 .arrow {
   position: absolute;
