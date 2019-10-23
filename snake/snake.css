@@ -39,3 +39,39 @@ head,body{
   left: 0;
   top: 0;
 }
+.game-control {
+  margin-top: 20px;
+  width: 60px;
+  height: 60px;
+  position: relative;
+  display: 'none';
+}
+.arrow {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+.up {
+  top: 0;
+  left: 50%;
+  margin-left: -10px;
+  transform: rotate(180deg);
+}
+.down {
+  left: 50%;
+  bottom: 0;
+  margin-left: -10px;
+}
+.left {
+  left: 0;
+  top: 50%;
+  margin-top: -10px;
+  transform: rotate(90deg);
+}
+.right {
+  right: 0;
+  top: 50%;
+  margin-top: -10px;
+  transform: rotate(-90deg);
+}
+

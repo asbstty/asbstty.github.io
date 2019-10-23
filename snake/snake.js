@@ -1,7 +1,17 @@
-const DIRECTION_UP = 0;
-const DIRECTION_RIGHT = 1;
-const DIRECTION_DOWN = 2;
-const DIRECTION_LEFT = 3;
+const DIRECTION_UP = -1;
+const DIRECTION_DOWN = 1;
+const DIRECTION_RIGHT = -2;
+const DIRECTION_LEFT = 2;
+
+function IsPC(){  
+  var userAgentInfo = navigator.userAgent;
+  var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");  
+  var flag = true;  
+  for (var v = 0; v < Agents.length; v++) {  
+      if (userAgentInfo.indexOf(Agents[v]) > 0) { flag = false; break; }  
+  }  
+  return flag;  
+}
 
 addEventListener('load', () => {
   const $tableCvs = document.getElementById('tableCanvas')
@@ -10,6 +20,7 @@ addEventListener('load', () => {
   const btnStart = document.getElementById('btnStart')
   const divDuration = document.getElementById('gameDuration')
   const divScore = document.getElementById('gameScore')
+  const divControl = document.getElementsByClassName('game-control')[0]
   const sept = 10
   const foodWidth = 10
   let snake = []
@@ -25,6 +36,9 @@ addEventListener('load', () => {
   let duration = 0
   let countInterval = null
   let gameData = {}
+  if(!IsPC()) {
+    divControl.style.display = 'block';
+  }
   Object.defineProperties(gameData, {
     'score': {
       get: function() {
@@ -236,4 +250,23 @@ addEventListener('load', () => {
       }
     }
   })
+
+  //手机端
+  divControl.addEventListener('click', e => {
+    const {id} = e.target
+    if(id == 'up') {
+      control(DIRECTION_UP)
+    } else if(id == 'right') {
+      control(DIRECTION_RIGHT)
+    } else if(id == 'down') {
+      control(DIRECTION_DOWN)
+    } else if(id == 'left') {
+      control(DIRECTION_LEFT)
+    }
+  })
+  function control(direction) {
+    if(direction + curDirection != 0) {
+      curDirection = direction
+    }
+  }
 })
