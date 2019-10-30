@@ -138,6 +138,8 @@ addEventListener('load', () => {
 
   function initSnake() {
     snake = []
+    cachePoint = null
+    curDirection = DIRECTION_RIGHT
     let originPos = {x: 25, y: 20}
     for(let i = 0; i < 4; i++) {
       snake.push({x: originPos.x + i, y: originPos.y})
@@ -222,6 +224,9 @@ addEventListener('load', () => {
       const item = snake[i]
       if(item.x == head.x && item.y == head.y) {
         conflict = true;
+        console.log('item>>>>>', item)
+        console.log('head>>>>>', head)
+        console.log('snake>>>>', snake)
         break;
       }
     }
