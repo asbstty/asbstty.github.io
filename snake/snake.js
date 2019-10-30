@@ -137,6 +137,7 @@ addEventListener('load', () => {
   }
 
   function initSnake() {
+    snake = []
     let originPos = {x: 25, y: 20}
     for(let i = 0; i < 4; i++) {
       snake.push({x: originPos.x + i, y: originPos.y})
