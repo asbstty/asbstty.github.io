@@ -194,18 +194,24 @@ addEventListener('load', () => {
     }
     for(let i = 0; i <= lastIndex; i++) {
       if(i < lastIndex) {
-        snake[i] = snake[i + 1]
+        snake[i].x = snake[i + 1].x
+        snake[i].y = snake[i + 1].y
       } else {
         snake[i] = next
+        snake[i].x = next.x
+        snake[i].y = next.y
       }
     }
     if(cachePoint) {
       snake.unshift(cachePoint)
       cachePoint = null
     }
-    head = next
+    head.x = next.x
+    head.y = next.y
     if(head.x == food.x && head.y == food.y) {
-      cachePoint = snake[0]
+      cachePoint = {}
+      cachePoint.x = snake[0].x
+      cachePoint.y = snake[0].y
       gameData.score += 10
       generateFood()
     }
