@@ -36,6 +36,7 @@ addEventListener('load', () => {
   let duration = 0
   let countInterval = null
   let gameData = {}
+  let lock = false
   if(!IsPC()) {
     divControl.style.display = 'block';
   }
@@ -95,6 +96,8 @@ addEventListener('load', () => {
   function startGame() {
     gameData.score = 0
     gameData.duration = 0
+    lock = false
+    speed = 100
     startCountDown()
     initSnake()
     generateFood()
@@ -128,10 +131,10 @@ addEventListener('load', () => {
 
   function drawFood() {
     snakeCtx.clearRect(food.x - foodWidth/ 2, food.y - foodWidth / 2, foodWidth, foodWidth)
-    const radius = 2;
+    const radius = 3;
     snakeCtx.beginPath();
     snakeCtx.fillStyle = 'red';
-    snakeCtx.lineWidth = 0.5;
+    snakeCtx.lineWidth = 2;
     snakeCtx.arc(food.x * sept, food.y * sept, radius, 0, 2 * Math.PI);
     snakeCtx.fill();
   }
@@ -171,6 +174,7 @@ addEventListener('load', () => {
       setTimeout(refresh, speed);
       updateSnake()
       draw()
+      lock = false
     } else {
       clearInterval(countInterval)
       countInterval = null
@@ -239,21 +243,27 @@ addEventListener('load', () => {
 
   addEventListener('keydown', e => {
     const code = e.which
+    if(lock)
+      return
     if(code == 38 || code == 87) {  //向上
       if(curDirection !== DIRECTION_DOWN) {
         curDirection = DIRECTION_UP
+        lock = true
       }
     } else if(code == 39 || code == 68) {  //向右
       if(curDirection !== DIRECTION_LEFT) {
         curDirection = DIRECTION_RIGHT
+        lock = true
       }
     } else if(code == 40 || code == 83) {  //向下 
       if(curDirection !== DIRECTION_UP) {
         curDirection = DIRECTION_DOWN
+        lock = true
       }
     } else if(code == 37 || code == 65) { //向左
       if(curDirection !== DIRECTION_RIGHT) {
         curDirection =  DIRECTION_LEFT
+        lock = true
       }
     }
   })
