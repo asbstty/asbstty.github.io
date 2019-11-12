@@ -33,9 +33,9 @@
     addEventListener('load', function() {
       let socket = io('http://121.40.243.67:3000');
       // let socket = io('http://localhost:3000');
-      let {username, userid} = checkLogin()
-      if(username && userid) {
-        socket.emit('login', {username, userid})
+      let {username, userid, v_code} = checkLogin()
+      if(username && userid && v_code) {
+        socket.emit('login', {username, userid, v_code})
       } else {
         clearLoginInfo()
       }
@@ -108,17 +108,22 @@
       function checkLogin() {
         const userid = localStorage.getItem('userid')
         const username = localStorage.getItem('username')
-        return {userid, username}
+        const v_code = localStorage.getItem('v_code')
+        return {userid, username, v_code}
       }
       
-      function saveLoginInfo(username, userid) {
-        localStorage.setItem('username', username)
-        localStorage.setItem('userid', userid)
+      function saveLoginInfo(name, id, v_code) {
+        username = name
+        userid = id
+        localStorage.setItem('username', name)
+        localStorage.setItem('userid', id)
+        localStorage.setItem('v_code', v_code)
       }
 
       function clearLoginInfo() {
         localStorage.removeItem('username')
         localStorage.removeItem('userid')
+        localStorage.removeItem('v_code')
       }
 
       /**处理页面事件**/
@@ -216,15 +221,20 @@
       })
       socket.on('login suc', data => {
         console.log('loginSuc>>>', data)
-        const {username, userid, currentboard, gameStatus, nextPlayer} = data
+        const {username, userid, currentboard, gameStatus, nextPlayer, v_code} = data
         if(currentboard) {
           drawer.drawChessBoardWithArray(currentboard)
           playHandler.gameStatus = gameStatus
           playHandler.canPlay = userid === nextPlayer.userid && gameStatus == 1
         }
         $loginPage.style.display = 'none';
-        saveLoginInfo(username, userid)
+        saveLoginInfo(username, userid, v_code)
         chater = new Chat(userid)
+      })
+      socket.on('nextPlayer', data => {
+        const {nextPlayer, gameStatus} = data
+        playHandler.gameStatus = gameStatus
+        playHandler.canPlay = userid === nextPlayer.userid && gameStatus == 1
       })
       socket.on('new message', content => {
         console.log('new message', content)
