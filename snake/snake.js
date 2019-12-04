@@ -20,7 +20,8 @@ addEventListener('load', () => {
   const btnStart = document.getElementById('btnStart')
   const divDuration = document.getElementById('gameDuration')
   const divScore = document.getElementById('gameScore')
-  const divControl = document.getElementsByClassName('game-control')[0]
+  const toggleSwitch = document.querySelector('.toggle-switch');
+  const toggleCircle = document.querySelector('.toggle-circle');
   const sept = 10
   const foodWidth = 10
   let snake = []
@@ -37,9 +38,7 @@ addEventListener('load', () => {
   let countInterval = null
   let gameData = {}
   let lock = false
-  if(!IsPC()) {
-    divControl.style.display = 'block';
-  }
+  let autoPlay = false
   Object.defineProperties(gameData, {
     'score': {
       get: function() {
@@ -48,7 +47,7 @@ addEventListener('load', () => {
       set: function(val) {
         score = val
         divScore.innerText = `得分：${score}`
-        if(speed > 60) {
+        if(speed > 50) {
           speed = 100 - 10 * Math.floor(score / 10)
         }
       }
@@ -172,6 +171,9 @@ addEventListener('load', () => {
   function refresh() {
     if(!isGameOver()) {
       setTimeout(refresh, speed);
+      if(autoPlay) {
+        autoDrive();
+      }
       updateSnake()
       draw()
       lock = false
@@ -179,6 +181,47 @@ addEventListener('load', () => {
       clearInterval(countInterval)
       countInterval = null
       btnStart.style.display = 'block'
+    }
+  }
+
+  //自动驾驶
+  function autoDrive() {
+    const {x: headX, y: headY} = head
+    const {x: foodX, y: foodY} = food
+    if(foodX > headX) {
+      if(curDirection === DIRECTION_LEFT) {
+        if(foodY >= headY) {
+          curDirection = DIRECTION_UP
+        } else {
+          curDirection = DIRECTION_DOWN
+        }
+      } else {
+        curDirection = DIRECTION_RIGHT
+      }
+    } else if(foodX == headX) {
+      if(foodY > headY) {
+        if(curDirection === DIRECTION_UP) {
+          curDirection = DIRECTION_RIGHT
+        } else {
+          curDirection = DIRECTION_DOWN
+        }
+      } else if(foodY < headY) {
+        if(curDirection === DIRECTION_DOWN) {
+          curDirection = DIRECTION_RIGHT
+        } else {
+          curDirection = DIRECTION_UP
+        }
+      }
+    } else if(foodX < headX) {
+      if(curDirection === DIRECTION_RIGHT) {
+        if(foodY >= headY) {
+          curDirection = DIRECTION_UP
+        } else {
+          curDirection = DIRECTION_DOWN
+        }
+      } else {
+        curDirection = DIRECTION_LEFT
+      }
     }
   }
 
@@ -243,7 +286,7 @@ addEventListener('load', () => {
 
   addEventListener('keydown', e => {
     const code = e.which
-    if(lock)
+    if(lock || autoPlay)
       return
     if(code == 38 || code == 87) {  //向上
       if(curDirection !== DIRECTION_DOWN) {
@@ -267,23 +310,9 @@ addEventListener('load', () => {
       }
     }
   })
-
-  //手机端
-  divControl.addEventListener('click', e => {
-    const {id} = e.target
-    if(id == 'up') {
-      control(DIRECTION_UP)
-    } else if(id == 'right') {
-      control(DIRECTION_RIGHT)
-    } else if(id == 'down') {
-      control(DIRECTION_DOWN)
-    } else if(id == 'left') {
-      control(DIRECTION_LEFT)
-    }
+  toggleSwitch.addEventListener('click', () => {
+    toggleSwitch.classList.toggle('toggle-active');
+    toggleCircle.classList.toggle('toggle-circle-active');
+    autoPlay = !autoPlay
   })
-  function control(direction) {
-    if(direction + curDirection != 0) {
-      curDirection = direction
-    }
-  }
 })
