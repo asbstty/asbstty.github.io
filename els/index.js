@@ -2,27 +2,33 @@ const DIRECTION_DOWN = 1;
 const DIRECTION_RIGHT = 2;
 const DIRECTION_LEFT = 3;
 const DIRECTION_UP = 4;
-const boardColumnNum = 7
-const boardRowNum = 12
+const boardColumnNum = 10
+const boardRowNum = 20
 const boardCvs = document.getElementById('boardCvs')
 const doneCvs = document.getElementById('doneCvs')
 const brickCvs = document.getElementById('brickCvs')
+const nextBrickCvs = document.getElementById('nextBrick')
 const boardCtx = boardCvs.getContext('2d');
 const doneCtx = doneCvs.getContext('2d');
 const brickCtx = brickCvs.getContext('2d');
+const nextBrickCtx = nextBrickCvs.getContext('2d');
+
 let doneList = []
 let curDirection = DIRECTION_DOWN
 let boardWidth = boardCvs.clientWidth;
 let boardHeight = boardCvs.clientHeight;
+const nextBrickWidth = nextBrickCvs.clientWidth;
+const nextBrickHeight = nextBrickCvs.clientHeight;
 const brickWidth = boardWidth / boardColumnNum;
 brickCtx.fillStyle = 'black'
 doneCtx.fillStyle = 'gray'
-let speed = 1000
+nextBrickCtx.fillStyle = 'black'
+let speed = 800;
+let score = 0;
+let gameTimeout = null;
 
 initGame();
-gameInterval = setInterval(() => {
-  refresh();
-}, speed);
+refresh();
 
 function initGame() {
   for(let row = 0; row < boardRowNum; row++) {
@@ -32,10 +38,16 @@ function initGame() {
   drawBoard();
   generateBrick();
   drawBrick();
+  gameOver = false;
 }
 
 function refresh() {
   move();
+  speed = 800 - 100 * Math.floor(score /100);
+  speed = Math.max(speed, 60);
+  if(!gameOver) {
+    setTimeout(refresh, speed);
+  }
 }
 
 function drawBrick() {
@@ -103,10 +115,11 @@ function move() {
     let eraseNum = erase();
     if(eraseNum > 0) {
       drawDoneList();
+      score += 10;
     }
     if(this.offsetRow + eraseNum < 0) {
       alert('game Over!')
-      clearInterval(gameInterval)
+      gameOver = true;
     } else {
       generateBrick();
     }
@@ -190,26 +203,58 @@ function erase() {
 
 //生成新的
 function generateBrick() {
-  const brickType = Math.floor(Math.random() * 4);
-  switch(brickType) {
-    case 0:
-      this.fuck = new BrickT();
-      break;
-    case 1:
-      this.fuck = new BrickL();
-      break;
-    case 2:
-      this.fuck = new BrickAntiL();
-      break;
-    case 3:
-      this.fuck = new BrickTian();
-      break;
-    default:
-      this.fuck = new BrickL();
-      break;
+  if(this.nextFuck) {
+    this.fuck = this.nextFuck;
+  } else {
+    this.fuck = getNewBrick();
   }
   this.offsetRow = this.fuck.offsetRow;
   this.offsetColumn = this.fuck.offsetColumn;
+  this.nextFuck = getNewBrick();
+  drawNextBrick();
+}
+
+//
+
+//生成下一个方块
+function getNewBrick() {
+  const brickType = Math.floor(Math.random() * 5);
+  let brick = [];
+  switch(brickType) {
+    case 0:
+      brick = new BrickT();
+      break;
+    case 1:
+      brick = new BrickL();
+      break;
+    case 2:
+      brick = new BrickAntiL();
+      break;
+    case 3:
+      brick = new BrickTian();
+      break;
+    case 4:
+      brick = new BrickLine();
+      break;
+    default:
+      brick = new BrickL();
+      break;
+  }
+  return brick
+}
+
+function drawNextBrick() {
+  console.log('this.nextFuck', this.nextFuck)
+  const bricks = this.nextFuck.getBricks();
+  nextBrickCtx.clearRect(0, 0, nextBrickWidth, nextBrickHeight);
+  bricks.forEach((rowItems, rowIndex) => {
+    rowItems.forEach((item, columnIndex) => {
+      if(item === 1 && rowIndex >= 0 && columnIndex >= 0) {
+        nextBrickCtx.beginPath();
+        nextBrickCtx.fillRect(columnIndex * brickWidth + 1, rowIndex * brickWidth + 1, brickWidth - 2, brickWidth - 2);
+      }
+    })
+  })
 }
 
 addEventListener('keydown', e => {
