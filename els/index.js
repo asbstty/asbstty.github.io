@@ -190,7 +190,24 @@ function erase() {
 
 //生成新的
 function generateBrick() {
-  this.fuck = new BrickT();
+  const brickType = Math.floor(Math.random() * 4);
+  switch(brickType) {
+    case 0:
+      this.fuck = new BrickT();
+      break;
+    case 1:
+      this.fuck = new BrickL();
+      break;
+    case 2:
+      this.fuck = new BrickAntiL();
+      break;
+    case 3:
+      this.fuck = new BrickTian();
+      break;
+    default:
+      this.fuck = new BrickL();
+      break;
+  }
   this.offsetRow = this.fuck.offsetRow;
   this.offsetColumn = this.fuck.offsetColumn;
 }
@@ -206,5 +223,8 @@ addEventListener('keydown', e => {
   } else if(code == 38 || code == 87) {  //向上
     curDirection = DIRECTION_UP;
     move(); 
+  }  else if(code == 40 || code == 83) {  //向下 
+    curDirection = DIRECTION_DOWN;
+    move();
   }
 })
