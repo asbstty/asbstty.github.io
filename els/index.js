@@ -44,7 +44,7 @@ function initGame() {
 function refresh() {
   move();
   speed = 800 - 100 * Math.floor(score /100);
-  speed = Math.max(speed, 60);
+  speed = Math.max(speed, 200);
   if(!gameOver) {
     setTimeout(refresh, speed);
   }
@@ -218,7 +218,7 @@ function generateBrick() {
 
 //生成下一个方块
 function getNewBrick() {
-  const brickType = Math.floor(Math.random() * 5);
+  const brickType = Math.floor(Math.random() * 6);
   let brick = [];
   switch(brickType) {
     case 0:
@@ -235,6 +235,9 @@ function getNewBrick() {
       break;
     case 4:
       brick = new BrickLine();
+      break;
+    case 5:
+      brick = new BrickZ();
       break;
     default:
       brick = new BrickL();
