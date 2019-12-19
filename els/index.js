@@ -26,6 +26,7 @@ nextBrickCtx.fillStyle = 'black'
 let speed = 800;
 let score = 0;
 let gameTimeout = null;
+colors = ['black','#0BF1D0', '#0BF179', '#F1D80B', '#F1550B', '#EE1717', '#F10B0B']
 
 initGame();
 refresh();
@@ -43,8 +44,12 @@ function initGame() {
 
 function refresh() {
   move();
-  speed = 800 - 100 * Math.floor(score /100);
-  speed = Math.max(speed, 200);
+  let newSpeed = 800 - 100 * Math.floor(score /100);
+  newSpeed = Math.max(newSpeed, 200);
+  if(speed !== newSpeed) {
+    speed = newSpeed;
+    brickCtx.fillStyle = colors[Math.floor(score / 100)];
+  }
   if(!gameOver) {
     setTimeout(refresh, speed);
   }
