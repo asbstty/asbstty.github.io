@@ -1,7 +1,3 @@
-head,body{
-  width: 100%;
-  height: 100%;
-}
 .content {
   width: 100%;
   height: 100%;
@@ -10,19 +6,22 @@ head,body{
   align-items: center;
   justify-content: center;
 }
-.game-area {
+.gameArea {
   width: 600px;
   height: 400px;
   position: relative;
   border: solid 2px black;
 }
-.game-info {
+.gameInfo {
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 10px;
 }
-.btn-start {
+.gameInfo>div:last-child {
+  margin-left: 20px;
+}
+.btnStart {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -39,7 +38,12 @@ head,body{
   left: 0;
   top: 0;
 }
-.game-control {
+.cvs:first-child {
+  background:#F6BF72;
+  width: 600px;
+  height: 400px;
+}
+.gameControl {
   margin-top: 20px;
   width: 120px;
   height: 120px;
@@ -74,13 +78,13 @@ head,body{
   margin-top: -20px;
   transform: rotate(-90deg);
 }
-.auto-area {
+.autoArea {
   margin-top: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.toggle-switch {
+.toggleSwitch {
   width: 40px;
   height: 20px;
   border-radius: 10px;
@@ -90,7 +94,7 @@ head,body{
   cursor: pointer;
   margin-left: 10px;
 }
-.toggle-circle {
+.toggleCircle {
   width: 18px;
   height: 18px;
   position: absolute;
@@ -101,9 +105,9 @@ head,body{
   transform: translateX(0);
   transition: all 0.2s;
 }
-.toggle-active {
+.toggleActive {
   background-color: #7983ff;
 }
-.toggle-circle-active {
+.toggleCircleActive {
   transform: translateX(20px);
 }
