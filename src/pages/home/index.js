@@ -12,16 +12,12 @@ class Home extends React.Component{
   render() {
     const router = [
       {
-        title: '11111',
+        title: '贪吃蛇',
         path: '/snake'
       },
       {
-        title: '2222222',
-        path:'/b'
-      },
-      {
-        title: 'els',
-        path: '/els'
+        title: '俄罗斯方块',
+        path:'/els'
       },
     ];
     return(
