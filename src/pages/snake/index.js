@@ -1,11 +1,8 @@
 import React from 'react';
 import styles from './index.scss';
+import GameController from '@/utils/gameController';
+import { DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT } from '@/utils/constant';
 const classNames = require('classnames');
-
-const DIRECTION_UP = -1;
-const DIRECTION_DOWN = 1;
-const DIRECTION_RIGHT = -2;
-const DIRECTION_LEFT = 2;
 
 export default class Snake extends React.Component {
   constructor() {
@@ -24,34 +21,16 @@ export default class Snake extends React.Component {
 
   componentDidMount() {
     const $snakeCvs = document.getElementById('snakeCanvas');
-    this.snakeCtx = $snakeCvs.getContext('2d')
-    addEventListener('keydown', this.handleKeyDown)
+    this.snakeCtx = $snakeCvs.getContext('2d');
+    new GameController(this.handleKeyDown);
   }
 
-  handleKeyDown = e => {
-    const code = e.which
+  handleKeyDown = direction => {
     if(this.lock || this.state.autoPlay)
       return
-    if(code == 38 || code == 87) {  //向上
-      if(this.curDirection !== DIRECTION_DOWN) {
-        this.curDirection = DIRECTION_UP
-        this.lock = true
-      }
-    } else if(code == 39 || code == 68) {  //向右
-      if(this.curDirection !== DIRECTION_LEFT) {
-        this.curDirection = DIRECTION_RIGHT
-        this.lock = true
-      }
-    } else if(code == 40 || code == 83) {  //向下 
-      if(this.curDirection !== DIRECTION_UP) {
-        this.curDirection = DIRECTION_DOWN
-        this.lock = true
-      }
-    } else if(code == 37 || code == 65) { //向左
-      if(this.curDirection !== DIRECTION_RIGHT) {
-        this.curDirection =  DIRECTION_LEFT
-        this.lock = true
-      }
+    if(this.curDirection + direction !== 0) {
+      this.curDirection = direction;
+      this.lock = true;
     }
   }
 

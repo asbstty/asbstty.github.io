@@ -1,18 +1,18 @@
 import React from 'react';
 import styles from './index.scss';
 import initBrick from './Brick';
-
-const DIRECTION_DOWN = 1;
-const DIRECTION_RIGHT = 2;
-const DIRECTION_LEFT = 3;
-const DIRECTION_UP = 4;
+import GameController from '@/utils/gameController';
+import { DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT } from '@/utils/constant';
 const colors = ['black','#0BF1D0', '#0BF179', '#F1D80B', '#F1550B', '#EE1717', '#F10B0B']
 
 export default class Els extends React.Component {
   constructor() {
     super();
     this.state = {
-      score: 0
+      score: 0,
+      isPaused: true,
+      highestScore: '',
+      highestTime: '',
     }
     this.boardRowNum = 20;
     this.boardColumnNum = 10;
@@ -28,36 +28,23 @@ export default class Els extends React.Component {
     this.nextBrickCtx = document.getElementById('nextBrick').getContext('2d');
     this.brickCtx = document.getElementById('brickCvs').getContext('2d');
     this.doneCtx = document.getElementById('doneCvs').getContext('2d');
-    this.brickCtx.fillStyle = 'black'
-    this.doneCtx.fillStyle = 'gray'
-    this.nextBrickCtx.fillStyle = 'black'
-    this.initGame();
-    addEventListener('keydown', e => {
-      const code = e.which
-      if(code == 39 || code == 68) {  //向右
-        this.curDirection = DIRECTION_RIGHT
-        this.move();
-      } else if(code == 37 || code == 65) { //向左
-        this.curDirection = DIRECTION_LEFT
-        this.move();
-      } else if(code == 38 || code == 87) {  //向上
-        this.curDirection = DIRECTION_UP;
-        this.move(); 
-      }  else if(code == 40 || code == 83) {  //向下 
-        this.curDirection = DIRECTION_DOWN;
-        this.move();
-      }
+    this.brickCtx.fillStyle = 'black';
+    this.doneCtx.fillStyle = 'gray';
+    this.nextBrickCtx.fillStyle = 'black';
+    const highestScore = localStorage.getItem('highestScore') || '';
+    const highestTime = localStorage.getItem('highestTime') || '';
+    this.drawBoard();
+    this.startGame();
+    new GameController(this.handleKeyDown);
+    this.setState({
+      highestScore,
+      highestTime
     })
   }
 
-  initGame = () => {
-    for(let row = 0; row < this.boardRowNum; row++) {
-      this.doneList[row] = new Array(this.boardColumnNum);
-      this.doneList[row].fill(0);
-    }
-    this.drawBoard();
-    this.generateBrick();
-    this.startGame();
+  handleKeyDown = direction => {
+    this.curDirection = direction;
+    this.move();
   }
 
   drawBoard = () => {
@@ -119,6 +106,19 @@ export default class Els extends React.Component {
       if(this.offsetRow + eraseNum < 0) {
         alert('game Over!')
         this.gameOver = true;
+        const {highestScore} = this.state;
+        if(score > highestScore) {
+          const highestTime = new Date().toLocaleString();
+          localStorage.setItem('highestTime', highestTime);
+          localStorage.setItem('highestScore', highestScore);
+          this.setState({
+            highestScore,
+            highestTime
+          });
+        }
+        this.setState({
+          isPaused: true,
+        })
       } else {
         this.generateBrick();
       }
@@ -246,7 +246,7 @@ export default class Els extends React.Component {
     })
   }
 
-  refresh = () => {
+  refresh = (isPaused = false) => {
     this.move();
     let newSpeed = 800 - 100 * Math.floor(this.state.score /100);
     newSpeed = Math.max(newSpeed, 200);
@@ -254,26 +254,53 @@ export default class Els extends React.Component {
       this.speed = newSpeed;
       this.brickCtx.fillStyle = colors[Math.floor(this.state.score / 100)];
     }
-    if(!this.gameOver) {
+    if(!this.gameOver && !isPaused) {
       setTimeout(this.refresh, this.speed);
     }
   }
 
   startGame = () => {
+    for(let row = 0; row < this.boardRowNum; row++) {
+      this.doneList[row] = new Array(this.boardColumnNum);
+      this.doneList[row].fill(0);
+    }
+    this.generateBrick();
+    this.nextBrick = null;
     this.gameOver = false;
+    this.setState({
+      isPaused: false
+    })
     this.refresh();
   }
 
+  //开始/暂停
+  togglePlay = () => {
+    this.refresh(this.state.isPaused)
+    if(this.gameOver) {
+      this.startGame();
+    }
+    this.setState({
+      isPaused: !this.state.isPaused
+    })
+  }
+
   render() {
-    const {score} = this.state
+    const {score, isPaused, highestScore, highestTime} = this.state
     return(
       <div className={styles.container}>
-        <div>{score}</div>
         <div className={styles.content}>
           <canvas id='boardCvs' width="350" height="700" className={styles.cvs}></canvas>
           <canvas id='doneCvs' width="350" height="700" className={styles.cvs}></canvas>
           <canvas id='brickCvs' width="350" height="700" className={styles.cvs}></canvas>
-          <canvas id='nextBrick' width="140" height="140" className={styles.cvs}></canvas>
+        </div>
+        <div className={styles.side}>
+          <canvas id='nextBrick' width="140" height="140"></canvas>
+          <div className={styles.score}>得分：{score}</div>
+          {highestScore && <div className={styles.highest}>最高分：{ `${highestScore} ${highestTime}` }</div>}
+          <div className={styles.btnPause} onClick={this.togglePlay}>{isPaused ? '开始':'暂停'}</div>
+          <div className="controller">
+            
+          </div>
         </div>
       </div>
     )

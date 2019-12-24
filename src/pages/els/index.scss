@@ -24,7 +24,37 @@
   top: 0;
 }
 
-.cvs:nth-child(4) {
-  position: absolute;
+.side {
+  width: 160px;
+  height: 700px;
   margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #F6BF72;
+  position: relative;
+}
+
+.score {
+  font-size: 30px;
+  font-weight: bold;
+  color: black;
+  margin-top: 20px;
+}
+
+.highest {
+  margin-top: 20px;
+  font-size: 30px;
+  color: red;
+  font-weight: bold;
+}
+
+.btnPause {
+  text-align: center;
+  padding: 10px 20px;
+  font-size: 20px;
+  color: white;
+  margin-left: 20px;
+  background-color: rgb(45, 183, 245);
+  margin-top: 20px;
 }
