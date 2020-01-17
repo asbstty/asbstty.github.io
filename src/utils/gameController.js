@@ -1,4 +1,4 @@
-import {DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT};
+import {DIRECTION_UP, DIRECTION_DOWN, DIRECTION_RIGHT, DIRECTION_LEFT} from './constant.js'
 
 export default class GameController {
   constructor(handleKeydown) {
