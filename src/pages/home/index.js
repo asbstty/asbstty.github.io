@@ -1,8 +1,7 @@
 import React from 'react';
 import styles from './index.scss';
-import {withRouter} from 'react-router-dom';
 
-class Home extends React.Component{
+export default class Home extends React.Component{
 
   route(e) {
     const path = e.currentTarget.dataset.path;
@@ -29,5 +28,3 @@ class Home extends React.Component{
     )
   }
 }
-
-export default withRouter(Home)
